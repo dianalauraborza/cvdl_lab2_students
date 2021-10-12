@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from softmax import SoftmaxClassifier
 
 
-cifar_root_dir = 'cifar-10-python/cifar-10-batches-py'
+cifar_root_dir = '../cifar-10-batches-py'
 
 # the number of trains performed with different hyper-parameters
 search_iter = 10
