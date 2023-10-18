@@ -6,7 +6,7 @@ LABELS = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse
 NUM_CLASSES = len(LABELS)
 
 
-def load_batch(filepath):
+def load_batch(filepath: str) -> (np.ndarray, np.ndarray):
     """"
     Loads a batch from the cifar-10 dataset.
     A batch file contains a dictionary with the following elements:
@@ -30,7 +30,7 @@ def load_batch(filepath):
         return X, np.asarray(y)
 
 
-def load_ciaf10(root_dir):
+def load_ciaf10(root_dir: str) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """"
     This function loads the entire cifar-10 dataset.
     It returns the training set (each element in the training set is a 32x32 color image), the training set labels,

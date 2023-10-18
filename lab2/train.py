@@ -1,21 +1,13 @@
 import os
 import sys
-import random
+import torch
 import cifar10
 import numpy as np
 from functools import reduce
 import matplotlib.pyplot as plt
-from softmax import SoftmaxClassifier
+from lab2.softmax import SoftmaxClassifier
 
-
-cifar_root_dir = '../cifar-10-batches-py'
-
-# the number of trains performed with different hyper-parameters
-search_iter = 10
-# the batch size
-batch_size = 200
-# number of training steps per training process
-train_steps = 5000
+cifar_root_dir = 'cifar-10-batches-py'
 
 # load cifar10 dataset
 X_train, y_train, X_test, y_test = cifar10.load_ciaf10(cifar_root_dir)
@@ -37,10 +29,14 @@ X_test -= mean_image
 X_train = np.hstack([X_train, np.ones((X_train.shape[0], 1))])
 X_test = np.hstack([X_test, np.ones((X_test.shape[0], 1))])
 
-# the search limits for the learning rate and regularization strength
-# we'll use log scale for the search
-lr_bounds = (-7, -2)
-reg_strength_bounds = (-4, -2)
+# convert everything to tensors
+X_train, y_train, X_test, y_test = map(
+    torch.tensor, (X_train, y_train, X_test, y_test)
+)
+
+X_train = X_train.float()
+X_test = X_test.float()
+
 
 if not os.path.exists('train'):
     os.mkdir('train')
@@ -48,55 +44,45 @@ if not os.path.exists('train'):
 best_acc = -1
 best_cls_path = ''
 
-learning_rates = [-7, -5]
-regularization_strengths = [3000, 80000]
 
 input_size_flattened = reduce((lambda a, b: a * b), X_train[0].shape)
-results = []
 
-for index in range(0, search_iter):
-    # use log scale for sampling the learning rate
-    lr = pow(10, random.uniform(learning_rates[0], learning_rates[1]))
-    reg_strength = random.uniform(regularization_strengths[0], regularization_strengths[1])
-
-    cls = SoftmaxClassifier(input_shape=input_size_flattened, num_classes=cifar10.NUM_CLASSES)
-    history = cls.fit(X_train, y_train, lr=lr, reg_strength=reg_strength,
-            steps=train_steps, bs=batch_size)
-
-    results.append({
-        'lr': lr,
-        'reg': reg_strength,
-        'history': history
-    })
-
-    y_train_pred = cls.predict(X_train)
-    y_val_pred = cls.predict(X_test)
-
-    train_acc = np.mean(y_train == y_train_pred)
-
-    test_acc = np.mean(y_test == y_val_pred)
-    sys.stdout.write('\rlr {:.4f}, reg_strength{:.2f}, test_acc {:.2f}; train_acc {:.2f}'.format(lr, reg_strength, test_acc, train_acc))
-    cls_path = os.path.join('train', 'softmax_lr{:.4f}_reg{:.4f}-test{:.2f}.npy'.format(lr, reg_strength, test_acc))
-    cls.save(cls_path)
-
-    if test_acc > best_acc:
-        best_acc = test_acc
-        best_cls_path = cls_path
+# the batch size
+batch_size = 200
+# number of training steps per training process
+train_epochs = 50
 
 
-num_rows = search_iter//5 + 1
-for idx, res in enumerate(results):
-    plt.subplot(num_rows, 5, idx + 1)
-    plt.plot(res['history'])
+# use log scale for sampling the learning rate
+lr = 0.007
+reg_strength = 0.007
+
+cls = SoftmaxClassifier(input_shape=input_size_flattened, num_classes=cifar10.NUM_CLASSES)
+history = cls.fit(X_train, y_train, lr=lr, reg_strength=reg_strength,
+        epochs=train_epochs, bs=batch_size)
+
+
+y_train_pred = cls.predict(X_train)
+y_val_pred = cls.predict(X_test)
+
+train_acc = torch.mean((y_train == y_train_pred).float())
+
+test_acc = torch.mean((y_test == y_val_pred).float())
+sys.stdout.write('\rlr {:.4f}, reg_strength{:.2f}, test_acc {:.2f}; train_acc {:.2f}'.format(lr, reg_strength, test_acc, train_acc))
+cls_path = os.path.join('train', 'softmax_lr{:.4f}_reg{:.4f}-test{:.2f}.npy'.format(lr, reg_strength, test_acc))
+cls.save(cls_path)
+
+
+plt.plot(history)
 plt.show()
 
-best_softmax = SoftmaxClassifier(input_shape=input_size_flattened, num_classes=cifar10.NUM_CLASSES)
-best_softmax.load(best_cls_path)
+best_softmax = cls
 
 
 plt.rcParams['image.cmap'] = 'gray'
 # now let's display the weights for the best model
 weights = best_softmax.get_weights((32, 32, 3))
+print(weights.shape)
 w_min = np.amin(weights)
 w_max = np.amax(weights)
 
@@ -114,7 +100,3 @@ plt.show()
 # TODO your code here
 # use the metrics module to compute the precision, recall and confusion matrix for the best classifier
 # end TODO your code here
-
-
-
-
