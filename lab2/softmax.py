@@ -58,10 +58,9 @@ class SoftmaxClassifier:
         reg_strength = kwargs['reg_strength'] if 'reg_strength' in kwargs else 1e3
         epochs = kwargs['epochs'] if 'epochs' in kwargs else 100
         lr = kwargs['lr'] if 'lr' in kwargs else 1e-3
-        print('hyperparameters: lr{:.4f}, reg{:.4f}, epochs{:.2f}'.format(lr, reg_strength, epochs))
+        print('hyperparameters: lr {:.4f}, reg {:.4f}, epochs {:.2f}'.format(lr, reg_strength, epochs))
 
         for epoch in range(epochs):
-            print(epoch)
             for ii in range((X_train.shape[0] - 1) // bs + 1):  # in batches of size bs
                 # TODO your code here
                 start_idx = None  # we are ii batches in, each of size bs

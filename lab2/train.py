@@ -82,7 +82,7 @@ best_softmax = cls
 plt.rcParams['image.cmap'] = 'gray'
 # now let's display the weights for the best model
 weights = best_softmax.get_weights((32, 32, 3))
-print(weights.shape)
+
 w_min = np.amin(weights)
 w_max = np.amax(weights)
 
