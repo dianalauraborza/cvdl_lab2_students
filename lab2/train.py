@@ -53,17 +53,16 @@ batch_size = 200
 train_epochs = 50
 
 
-# use log scale for sampling the learning rate
-lr = 0.007
-reg_strength = 0.007
+lr = 0.007 # change the value - hyperparameter tuning
+reg_strength = 0.007 # change the value - hyperparameter tuning
 
 cls = SoftmaxClassifier(input_shape=input_size_flattened, num_classes=cifar10.NUM_CLASSES)
 history = cls.fit(X_train, y_train, lr=lr, reg_strength=reg_strength,
         epochs=train_epochs, bs=batch_size)
 
-
-y_train_pred = cls.predict(X_train)
-y_val_pred = cls.predict(X_test)
+with torch.no_grad():
+  y_train_pred = cls.predict(X_train)
+  y_val_pred = cls.predict(X_test)
 
 train_acc = torch.mean((y_train == y_train_pred).float())
 

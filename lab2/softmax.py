@@ -21,19 +21,19 @@ class SoftmaxClassifier:
 
     def predict_proba(self, X: torch.Tensor) -> torch.Tensor:
         # TODO your code here
-        # 0. compute the dot product between the weight matrix and the input X
+        # 0. compute the dot product between the input X and the weight matrix
         # you can use @ for this operation
         scores = None
         # remember about the bias trick!
         # 1. apply the softmax function on the scores, see torch.nn.functional.softmax
         # think about on what dimension (dim parameter) you should apply this operation
         scores = None
-        # 2, returned the normalized scores
+        # 2. returned the normalized scores
         return scores
 
     def predict(self, X: torch.Tensor) -> torch.Tensor:
         # TODO your code here
-        # 0. compute the dot product between the weight matrix and the input X as the scores
+        # 0. compute the dot product between the input X and the weight matrix
         scores = None
         # 1. compute the prediction by taking the argmax of the class scores
         # you might find torch.argmax useful here.
